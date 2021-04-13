@@ -1,3 +1,37 @@
 /* 
     General Styles
 */
+
+body {
+    background-color: black;
+}
+.favoritesContainer{
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgb(218, 173, 29);
+    text-align: center;
+    padding: 5px;
+}
+
+.favoritesContainer:hover{
+    background: rgb(226, 200, 52);
+    color:black
+}
+
+h1{
+    color:red;
+}
+
+h5{
+    color:black ;
+}
+
+.custom-card{
+    min-height: 350px;
+    min-width: 18rem;
+    margin-right: 25px;
+}
+
+.test{
+    width: 350px;
+}

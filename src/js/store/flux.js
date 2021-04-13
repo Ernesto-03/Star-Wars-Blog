@@ -1,42 +1,74 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			characters: [],
+			planets: [],
+			favorites: []
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
+			getCharacters: async () => {
+				const store = getStore();
+				const requestResponse = await fetch("https://www.swapi.tech/api/people/");
+				if (requestResponse.status == "200") {
+					const requestData = await requestResponse.json();
+					//console.log("Request Characters", requestData);
+					let charactersInfo = [];
+					requestData.results.forEach(person => {
+						fetch(person.url)
+							.then(responsePerson => responsePerson.json())
+							.then(personData => {
+								charactersInfo.push(personData.result.properties);
+								setStore({ ...store, characters: charactersInfo });
+							})
+							.catch(error => console.log("Error: ", error));
+					});
+					//console.log("Characters Info", charactersInfo);
+					console.log("Characters object", store.characters);
+				} else console.log("Error request: ", requestResponse.status);
 			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
+			getPlanets: async () => {
+				const store = getStore();
+				const requestResp = await fetch("https://www.swapi.tech/api/planets/");
+				if (requestResp.status == "200") {
+					const reqDataPlanets = await requestResp.json();
+					//console.log("Request Planets", reqDataPlanets);
+					let planetsInfo = [];
+					reqDataPlanets.results.forEach(planet => {
+						fetch(planet.url)
+							.then(responsePlanet => responsePlanet.json())
+							.then(planetData => {
+								planetsInfo.push(planetData.result.properties);
+								setStore({ ...store, planets: planetsInfo });
+							});
+					});
+
+					//console.log("Planets Info", planetsInfo);
+					console.log("Planets object", store.planets);
+				} else console.log("Error requestPlanets", requestResp.status);
 			},
-			changeColor: (index, color) => {
-				//get the store
+			addToFavorites: name => {
 				const store = getStore();
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
+				if (store.favorites.includes(name)) {
+				} else {
+					setStore({ ...store, favorites: [...store.favorites, name] });
+				}
+			},
+			addToFavoritesPlanets: name => {
+				const store = getStore();
+				const avoidingrepetition = store.favorites.includes(name);
+				store.planets.map(item => {
+					if (item.name == name && avoidingrepetition === false) {
+						setStore({ ...store, favorites: [...store.favorites, name] });
+					}
 				});
-
-				//reset the global store
-				setStore({ demo: demo });
+			},
+			deleteFavorite: name => {
+				const store = getStore();
+				const updateFavorites = store.favorites.filter(item => {
+					return item != name;
+				});
+				setStore({ ...store, favorites: updateFavorites });
 			}
 		}
 	};
